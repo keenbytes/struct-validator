@@ -1,3 +1,3 @@
-module github.com/keenbytes/structvalidator
+module github.com/keenbytes/struct-validator
 
-go 1.22.1
+go 1.24.5
