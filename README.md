@@ -1,6 +1,4 @@
-# structvalidator
-
-[![Go Reference](https://pkg.go.dev/badge/github.com/keenbytes/structvalidator.svg)](https://pkg.go.dev/github.com/keenbytes/structvalidator) [![Go Report Card](https://goreportcard.com/badge/github.com/keenbytes/structvalidator)](https://goreportcard.com/report/github.com/keenbytes/structvalidator)
+# struct-validator
 
 Verify the values of struct fields using tags
 
@@ -8,10 +6,10 @@ Verify the values of struct fields using tags
 
 Use the package with the following URL:
 ```
-import "github.com/keenbytes/structvalidator"
+import "github.com/keenbytes/struct-validator"
 ```
 
-And see below code snippet:
+And see the below code snippet:
 ```
 type Test1 struct {
 	FirstName     string `validation:"req lenmin:5 lenmax:25"`
@@ -31,7 +29,7 @@ s := &Test1{
 	...
 }
 
-o := structvalidator.&ValidationOptions{
+o := validator.&ValidationOptions{
 	RestrictFields: map[string]bool{
 		"FirstName": true,
 		"LastName":  true,
@@ -40,5 +38,5 @@ o := structvalidator.&ValidationOptions{
 	...
 }
 
-isValid, fieldsWithInvalidValue := structvalidator.Validate(s, &o)
+isValid, fieldViolations, err := validator.Validate(s, &o)
 ```
