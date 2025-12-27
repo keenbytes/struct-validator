@@ -54,6 +54,19 @@ func Validate(obj interface{}, options *ValidateOptions) (bool, map[string]int, 
 			continue
 		}
 
+		// check if the field exists in options.OverwriteValues
+		if options.OverwriteValues != nil {
+			if overwriteVal, exists := options.OverwriteValues[structField.Name]; exists {
+				fieldValue = reflect.ValueOf(overwriteVal)
+				// check if fieldValue can be assigned to structField
+				if !fieldValue.Type().AssignableTo(structField.Type) {
+					overallOk = false
+					fieldViolations[structField.Name] = FailType
+					continue
+				}
+			}
+		}
+
 		ok, viol := ValidateField(structField, fieldValue, tagName)
 		if !ok {
 			overallOk = false
@@ -91,7 +104,7 @@ func ValidateField(structField reflect.StructField, fieldValue reflect.Value, ta
 				switch name {
 				case "email":
 					if kind != reflect.String {
-						// Wrong kind → treat as violation (helps catch config errors)
+						// Wrong kind → treat as a violation (helps catch config errors)
 						violations += FailType
 						break
 					}
@@ -152,7 +165,7 @@ func ValidateField(structField reflect.StructField, fieldValue reflect.Value, ta
 		}
 	}
 
-	// regexp checked only if field value is not a nil pointer
+	// regexp checked only if the field value is not a nil pointer
 	if !isNilPointer {
 		regexpTagName := tagName + "_regexp"
 		if pattern := structField.Tag.Get(regexpTagName); pattern != "" {

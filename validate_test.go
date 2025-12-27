@@ -237,8 +237,76 @@ func TestWithInvalidValuesAndPointerFields(t *testing.T) {
 	compareViolations(violations, expectedViolations, t)
 }
 
+func TestWithOverwriteValues(t *testing.T) {
+	s := Test2{
+		FirstName: "First",
+		Age:       40,
+		PostCode:  "11-111",
+		Email:     "email",
+	}
+
+	expectedViolations := map[string]int{
+		"Age":      FailValMax,
+		"PostCode": FailRegExp,
+		"Email":    FailType,
+	}
+	opts := &ValidateOptions{
+		TagName: "mytag",
+		RestrictFields: map[string]bool{
+			"Age":      true,
+			"PostCode": true,
+			"Email":    true,
+		},
+		OverwriteValues: map[string]interface{}{
+			"Age":      400,
+			"PostCode": "123-456",
+			"Email":    44,
+		},
+	}
+	ok, violations, _ := Validate(s, opts)
+	if ok {
+		t.Fatalf("validation should have failed")
+	}
+
+	compareViolations(violations, expectedViolations, t)
+}
+
+func TestWithOverwriteValuesAndPointerFields(t *testing.T) {
+	age := 300
+	postCode := "a123"
+	email := 44
+
+	s := Test3{}
+
+	expectedViolations := map[string]int{
+		"Age":      FailValMax,
+		"PostCode": FailRegExp,
+		"Email":    FailType,
+	}
+	opts := &ValidateOptions{
+		TagName: "mytag",
+		RestrictFields: map[string]bool{
+			"Age":      true,
+			"PostCode": true,
+			"Email":    true,
+		},
+		OverwriteValues: map[string]interface{}{
+			"Age":      &age,
+			"PostCode": &postCode,
+			"Email":    &email,
+		},
+	}
+	ok, violations, _ := Validate(s, opts)
+	if ok {
+		t.Fatalf("validation should have failed")
+	}
+
+	compareViolations(violations, expectedViolations, t)
+}
+
 func compareViolations(violations map[string]int, expectedViolations map[string]int, t *testing.T) {
 	if len(violations) != len(expectedViolations) {
+		log.Printf("Violations:\n")
 		for k, v := range violations {
 			log.Printf("%s %d", k, v)
 		}
