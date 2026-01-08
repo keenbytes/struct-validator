@@ -85,6 +85,11 @@ func ValidateField(structField reflect.StructField, fieldValue reflect.Value, ta
 
 	isNilPointer, kind, concrete := dereferenceKind(fieldValue)
 
+	tag = strings.TrimSpace(tag)
+	if tag == "-" {
+		return true, 0
+	}
+
 	if tag != "" {
 		tokens := strings.Fields(tag)
 
